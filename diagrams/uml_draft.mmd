@@ -1,0 +1,119 @@
+classDiagram
+    class Owner {
+        +str name
+        +int availableMinutes
+        +Preferences preferences
+        +List~Pet~ pets
+        +addPet(pet) void
+        +removePet(petId) void
+        +getAllTasks() List~Task~
+        +getTodaysTasks(date) List~Task~
+    }
+
+    class Preferences {
+        +time dayStart
+        +time dayEnd
+        +List~TaskType~ preferredTypes
+        +List~TimeWindow~ blockedWindows
+        +isAllowed(task, slot) bool
+    }
+
+    class TimeWindow {
+        +time start
+        +time end
+        +overlaps(other) bool
+    }
+
+    class Pet {
+        +str petId
+        +str name
+        +str species
+        +int age
+        +str notes
+        +List~Task~ tasks
+        +addTask(task) void
+        +removeTask(taskId) void
+        +getTasks(date) List~Task~
+    }
+
+    class Task {
+        +str taskId
+        +str title
+        +TaskType type
+        +int durationMinutes
+        +Priority priority
+        +datetime dueTime
+        +Recurrence recurrence
+        +bool completed
+        +markComplete() void
+        +isDueOn(date) bool
+        +reschedule(newTime) void
+    }
+
+    class TaskType {
+        <<enumeration>>
+        WALK
+        FEEDING
+        MEDS
+        ENRICHMENT
+        GROOMING
+        OTHER
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    class Recurrence {
+        <<enumeration>>
+        NONE
+        DAILY
+        WEEKLY
+    }
+
+    class Scheduler {
+        +Owner owner
+        +generatePlan(date) DailyPlan
+        +rankTasks(tasks) List~Task~
+        +fitsConstraints(task, slot) bool
+        +detectConflicts(plan) List~Conflict~
+    }
+
+    class Conflict {
+        +Task first
+        +Task second
+        +str description
+    }
+
+    class DailyPlan {
+        +date date
+        +List~ScheduledItem~ items
+        +List~Task~ skipped
+        +int totalMinutes
+        +addItem(item) void
+        +explain() str
+        +summary() str
+    }
+
+    class ScheduledItem {
+        +Task task
+        +time start
+        +time end
+        +str reason
+    }
+
+    Owner "1" *-- "many" Pet : has
+    Owner "1" *-- "1" Preferences : sets
+    Preferences "1" o-- "many" TimeWindow : blocks
+    Pet "1" *-- "many" Task : needs
+    Task --> TaskType
+    Task --> Priority
+    Task --> Recurrence
+    Scheduler --> Owner : reads constraints from
+    Scheduler ..> DailyPlan : creates
+    Scheduler ..> Conflict : detects
+    DailyPlan "1" *-- "many" ScheduledItem : contains
+    ScheduledItem --> Task

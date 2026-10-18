@@ -5,8 +5,9 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+  -  The design separates the pets and the owners from the logic that builds the plan as well as the plan that is produced. The owner has multiple pets and 1 group of preferences. Every pet has tasks. The scheduler reads the contraints and makes the daily plan. The plan contains scheduled items. Each one records why its task was placed. The enums keep task categories fixed and the helper calsses such as conflict support conflict detection.
 - What classes did you include, and what responsibilities did you assign to each?
-
+    - The UML design includes the classes Owner, Pet, Task, Preferences, TimeWindow, Scheduler, DailyPlan, ScheduledItem, Conflict, and Enums. Owner holds the info for each pet owner. Pet holds the information for each pet. Task represents one activity. Preferences holds the owners preferences. TimeWindow is the start and end time. Scheduler holds the planning logic. Conflict records tasks that clash. DailyPlan holds the scheduled items. ScheduledItem pairs a task with its start and end time. Enums define the allowed values for categories, repeat rules, etc.
 **b. Design changes**
 
 - Did your design change during implementation?
