@@ -11,7 +11,9 @@
 **b. Design changes**
 
 - Did your design change during implementation?
+  - The desgin did change during implementation. The class remained the same but the behaviors changed.
 - If yes, describe at least one change and why you made it.
+  - One change that was made was the behavior of ScheduledItem. Before it did not have pet_name as a attribute. This needed to be added so then the UI could show which pet beloned to which task that was scheduled. 
 
 ---
 
