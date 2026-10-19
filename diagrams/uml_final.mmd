@@ -1,0 +1,137 @@
+classDiagram
+    class Owner {
+        +str name
+        +int available_minutes
+        +Preferences preferences
+        +List~Pet~ pets
+        +add_pet(pet) void
+        +remove_pet(pet_id) void
+        +get_pet(name) Pet
+        +get_all_tasks() List~Task~
+        +get_todays_tasks(day) List~Task~
+    }
+
+    class Preferences {
+        +time day_start
+        +time day_end
+        +List~TaskType~ preferred_types
+        +List~TimeWindow~ blocked_windows
+        +is_allowed(task, slot) bool
+    }
+
+    class TimeWindow {
+        +time start
+        +time end
+        +overlaps(other) bool
+    }
+
+    class Pet {
+        +str pet_id
+        +str name
+        +str species
+        +int age
+        +str notes
+        +List~Task~ tasks
+        +add_task(task) void
+        +remove_task(task_id) void
+        +get_tasks(day) List~Task~
+        +complete_task(task_id, on) Task
+    }
+
+    class Task {
+        +str task_id
+        +str title
+        +TaskType type
+        +int duration_minutes
+        +Priority priority
+        +datetime due_time
+        +date due_date
+        +Recurrence recurrence
+        +bool completed
+        +mark_complete(on) Task
+        +is_due_on(day) bool
+        +reschedule(new_time) void
+    }
+
+    class TaskType {
+        <<enumeration>>
+        WALK
+        FEEDING
+        MEDS
+        ENRICHMENT
+        GROOMING
+        OTHER
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    class Recurrence {
+        <<enumeration>>
+        NONE
+        DAILY
+        WEEKLY
+    }
+
+    class Scheduler {
+        +Owner owner
+        +sort_by_time(tasks) List~Task~
+        +filter_tasks(pet_name, completed) List~Task~
+        +mark_task_complete(task_id, on) Task
+        +rank_tasks(tasks) List~Task~
+        +check_conflicts(day) List~str~
+        +detect_conflicts(plan) List~Conflict~
+        +fits_constraints(task, slot) bool
+        +generate_plan(day) DailyPlan
+    }
+
+    class Conflict {
+        +Task first
+        +Task second
+        +str description
+    }
+
+    class DailyPlan {
+        +date date
+        +List~ScheduledItem~ items
+        +List~TaskReason~ skipped
+        +int total_minutes
+        +add_item(item) void
+        +explain() str
+        +summary() str
+    }
+
+    class ScheduledItem {
+        +Task task
+        +time start
+        +time end
+        +str reason
+        +str pet_name
+    }
+
+    class TaskReason {
+        <<tuple>>
+        +Task task
+        +str reason
+    }
+
+    Owner "1" *-- "many" Pet : has
+    Owner "1" *-- "1" Preferences : sets
+    Preferences "1" o-- "many" TimeWindow : blocks
+    Pet "1" *-- "many" Task : needs
+    Task --> TaskType
+    Task --> Priority
+    Task --> Recurrence
+    Task ..> Task : mark_complete creates next occurrence
+    Pet ..> Task : complete_task stores next occurrence
+    Scheduler --> Owner : reads all pets' tasks via get_all_tasks
+    Scheduler ..> DailyPlan : creates
+    Scheduler ..> Conflict : detects
+    DailyPlan "1" *-- "many" ScheduledItem : contains
+    DailyPlan "1" o-- "many" TaskReason : skipped
+    ScheduledItem --> Task
+    TaskReason --> Task

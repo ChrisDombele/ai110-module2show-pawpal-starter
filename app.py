@@ -42,7 +42,7 @@ with st.expander("Blocked times (when you're unavailable)"):
     b1, b2, b3 = st.columns([2, 2, 1])
     block_start = b1.time_input("From", value=time(12, 0), key="block_start")
     block_end = b2.time_input("To", value=time(13, 0), key="block_end")
-    if b3.button("Block", use_container_width=True):
+    if b3.button("Block", width="stretch"):
         if block_start < block_end:
             owner.preferences.blocked_windows.append(TimeWindow(block_start, block_end))
         else:
@@ -103,26 +103,74 @@ if owner.pets:
             st.rerun()
 
 today = date.today()
-rows = [
-    {
-        "Pet": p.name,
-        "Task": t.title,
-        "Type": t.type.value,
-        "Min": t.duration_minutes,
-        "Priority": t.priority.name.lower(),
-        "Time": f"{t.due_time:%H:%M}" if t.due_time else "flexible",
-        "Repeats": t.recurrence.value,
-        "Due today": t.is_due_on(today),
-    }
-    for p in owner.pets for t in p.tasks
-]
-if rows:
-    st.dataframe(rows, use_container_width=True, hide_index=True)
+scheduler = Scheduler(owner)
+pet_of = {t.task_id: p.name for p in owner.pets for t in p.tasks}
+
+flash = st.session_state.pop("flash", None)
+if flash:
+    st.success(flash)
+
+if any(p.tasks for p in owner.pets):
+    f1, f2 = st.columns(2)
+    pet_filter = f1.selectbox("Show pet", ["All pets"] + [p.name for p in owner.pets])
+    status_filter = f2.selectbox("Show status", ["All", "Open", "Done"])
+    shown = scheduler.sort_by_time(scheduler.filter_tasks(
+        pet_name=None if pet_filter == "All pets" else pet_filter,
+        completed={"All": None, "Open": False, "Done": True}[status_filter],
+    ))
+    st.caption("Sorted by time of day; tasks without a set time are listed last.")
+    if shown:
+        st.dataframe(
+            [
+                {
+                    "Pet": pet_of[t.task_id],
+                    "Task": t.title,
+                    "Type": t.type.value,
+                    "Min": t.duration_minutes,
+                    "Priority": t.priority.name.lower(),
+                    "Time": f"{t.due_time:%H:%M}" if t.due_time else "flexible",
+                    "Date": (
+                        f"{(t.due_time or t.due_date):%a %b %d}" if (t.due_time or t.due_date)
+                        else "any day"
+                    ),
+                    "Repeats": t.recurrence.value,
+                    "Status": "done" if t.completed else "open",
+                    "Due today": t.is_due_on(today),
+                }
+                for t in shown
+            ],
+            width="stretch",
+            hide_index=True,
+        )
+    else:
+        st.info("No tasks match these filters.")
+
+    open_tasks = scheduler.sort_by_time(scheduler.filter_tasks(completed=False))
+    if open_tasks:
+        d1, d2 = st.columns([3, 1])
+        chosen = d1.selectbox(
+            "Mark a task done",
+            open_tasks,
+            format_func=lambda t: f"{pet_of[t.task_id]}: {t.title}"
+            + (f" ({t.due_time:%H:%M})" if t.due_time else ""),
+        )
+        d2.write("")
+        if d2.button("Mark done", width="stretch"):
+            following = scheduler.mark_task_complete(chosen.task_id, today)
+            msg = f"Marked '{chosen.title}' done."
+            if following:
+                nxt = following.due_time or following.due_date
+                msg += f" Next {following.recurrence.value} task created for {nxt:%a %b %d}."
+            st.session_state.flash = msg
+            st.rerun()
 elif owner.pets:
     st.info("No tasks yet. Add one above.")
 
-for warning in Scheduler(owner).check_conflicts(today):
-    st.warning(warning)
+for warning in scheduler.check_conflicts(today):
+    st.warning(
+        f"{warning}\n\nThe planner keeps the higher-priority task at its requested time and "
+        "moves the other to the next free slot. Change one task's time if you want both exactly as asked."
+    )
 
 st.divider()
 

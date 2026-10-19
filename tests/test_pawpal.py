@@ -335,3 +335,10 @@ def test_adding_task_increases_pet_task_count():
     assert len(pet.tasks) == 1
     pet.add_task(Task("Feed"))
     assert len(pet.tasks) == 2
+
+
+def test_pet_with_no_tasks_gives_empty_plan():
+    owner, pet = make_owner()
+    plan = Scheduler(owner).generate_plan(DAY)
+    assert pet.tasks == [] and plan.items == [] and plan.skipped == []
+    assert "0 task(s)" in plan.summary()
