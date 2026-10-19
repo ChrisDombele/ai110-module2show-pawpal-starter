@@ -121,6 +121,9 @@ if rows:
 elif owner.pets:
     st.info("No tasks yet. Add one above.")
 
+for warning in Scheduler(owner).check_conflicts(today):
+    st.warning(warning)
+
 st.divider()
 
 # ------------------------------------------------------------- Schedule
