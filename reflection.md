@@ -72,11 +72,14 @@
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+  - I am most satisfied with the scheduler. The ability to detect time issues, accurately come up with a schedule based on preferences, and have a clean simple UI along with it is a good outcome.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+  - For another iteration, based on user use, bugs, and feedback, I would add other functionality or take some away. I would also update the UI to be more clean and simple.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+  - From this project, I learned that coming up with a clear plan with diagrams and examples helps improve the output of the product rather than prompting a vague sense of a product and working from there with more prompts. The process to creating a viable product would be faster and smoother.

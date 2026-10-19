@@ -156,10 +156,14 @@ to explain but not guaranteed to fit the maximum number of minutes. Conflict war
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. Install requirements and run streamlit run app.py
+2. Enter a name, minutes available, and the start and end of the day
+3. Add a windows like lunch when ther is nothing to schedule
+4. Enter a name for a pet along with species and age
+5. Choose the pet and set the title, type duration, priority and a repeat rule
+6. Review the task list across all of the pets. There will be a warning if there is a time overlap
+7. Read the summary plan table along with the summary line
+8. Each skipped task that appears will show a reason if there is one
+9. Change the minutes, day window, add more pets, tasks, and blocked times if needed
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
